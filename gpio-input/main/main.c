@@ -2,6 +2,7 @@
 #include "driver/gpio.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_log.h"
 
 #define LED_PIN_1 21
 #define BUTTON_PIN 6
@@ -13,19 +14,17 @@ void app_main(void)
 
     gpio_pad_select_gpio(BUTTON_PIN); 
     gpio_set_direction(BUTTON_PIN, GPIO_MODE_INPUT); 
+    gpio_set_pull_mode(BUTTON_PIN, GPIO_PULLUP_ONLY);
 
     while(1) {
 
-        gpio_set_level(LED_PIN_1, 1);
-        printf("LED_PIN_1 ON\n");
-        gpio_set_level(LED_PIN_2, 0);
-        printf("LED_PIN_2 OFF\n");
-        vTaskDelay(1000/portTICK_PERIOD_MS);
-
-        gpio_set_level(LED_PIN_1, 0);
-        printf("LED_PIN_1 OFF\n");
-        gpio_set_level(LED_PIN_2, 1);
-        printf("LED_PIN_2 ON\n");
-        vTaskDelay(1000/portTICK_PERIOD_MS);
+        if(gpio_get_level(BUTTON_PIN) == 0) {
+            gpio_set_level(LED_PIN_1, 1);
+            ESP_LOGI("Button", "Button pressed");
+        } else {
+            gpio_set_level(LED_PIN_1, 0);
+            ESP_LOGI("Button", "Button released");
+        }
+        vTaskDelay(100 / portTICK_PERIOD_MS);
     }
 }
